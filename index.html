@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#090b1d">
+<title>Pulso Neón</title>
+<style>
+:root{color-scheme:dark;--cyan:#43f3f5;--pink:#ff4db8;--bg:#090b1d}*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:radial-gradient(circle at 50% 32%,#1c1741 0,#0e102c 45%,#080917 100%);color:#fff}body{display:flex;align-items:center;justify-content:center;padding:18px 14px;overscroll-behavior:none}main{width:min(100%,450px);text-align:center}h1{font-size:clamp(2rem,8vw,3rem);letter-spacing:.13em;margin:5px 0 1px;text-shadow:0 0 20px #4ff7ff80}.accent{color:var(--cyan)}.sub{font-size:.8rem;color:#a6a7c2;letter-spacing:.13em;margin:0 0 20px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.stat{border:1px solid #444669;background:#171831a8;border-radius:14px;padding:10px 5px}.stat span{display:block;color:#a1a4c9;font-size:.73rem}.stat strong{font-size:1.55rem;font-variant-numeric:tabular-nums}.playfield{width:min(86vw,340px);aspect-ratio:1;margin:17px auto 8px;position:relative;touch-action:manipulation}canvas{width:100%;height:100%;display:block;filter:drop-shadow(0 0 12px #16dadf24)}.center{position:absolute;inset:26%;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;pointer-events:none}.center .symbol{font-size:2.2rem;color:var(--cyan);text-shadow:0 0 20px var(--cyan)}.center .status{font-weight:800;font-size:1rem;letter-spacing:.1em;margin-top:6px}.center .hint{font-size:.67rem;color:#a2a5c8;margin-top:5px;line-height:1.3}.message{height:28px;margin:0 0 9px;font-weight:700;color:var(--cyan)}button{border:0;cursor:pointer;color:#07101c;background:linear-gradient(105deg,#55fbf7,#7d91ff);padding:17px 25px;border-radius:17px;box-shadow:0 0 22px #30d5ff57;font-size:1.1rem;font-weight:900;letter-spacing:.13em;min-height:57px;width:100%;touch-action:manipulation;-webkit-tap-highlight-color:transparent}button:active{transform:scale(.975)}button:focus-visible{outline:3px solid white;outline-offset:3px}.sound{width:auto;min-height:39px;padding:9px 14px;font-size:.76rem;letter-spacing:.03em;border-radius:11px;background:#222743;color:#d5e6ff;box-shadow:none;border:1px solid #444968;margin-top:12px}.sound[aria-pressed="false"]{color:#a5abc3}.help{margin:15px auto 0;color:#a6a8c3;font-size:.82rem;max-width:350px;line-height:1.55}.footer{font-size:.69rem;color:#656889;margin-top:16px}.pulse{animation:pulse .3s ease-out}@keyframes pulse{50%{transform:scale(1.045)}}@media(max-height:720px){.playfield{width:min(70vw,290px);margin:8px auto}.sub{margin-bottom:9px}.help{margin-top:9px}.footer{margin-top:8px}}@media(prefers-reduced-motion:reduce){.pulse{animation:none}}
+
+.history{margin:16px 0 4px;padding:13px 12px;border-radius:16px;border:1px solid #444669;background:#171831a8}.history h2{margin:0 0 12px;font-size:.85rem;letter-spacing:.13em;color:#d7d9ff}.history-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.history-grid div{display:flex;flex-direction:column;gap:4px}.history-grid strong{font-size:1.2rem;color:#fff;font-variant-numeric:tabular-nums}.history-grid span{font-size:.58rem;letter-spacing:.03em;color:#a9add0}.history-note{font-size:.68rem;color:#8e92b3;margin:10px 0 0}.boss .accent,.boss .center .symbol{color:#ffd45d;text-shadow:0 0 20px #ffa92c}.boss .stat{border-color:#705040}.boss .message{color:#ffd45d}.boss #action{background:linear-gradient(110deg,#ffe06a,#ff7b70);box-shadow:0 0 22px #ff963d75}.boss .playfield{filter:drop-shadow(0 0 15px #ff9d2833)}.chaos .stat{border-color:#9a6150}.chaos .playfield{filter:drop-shadow(0 0 19px #ff4ba644)}.chaos .center .status{color:#ffd45d}.victory .center .status{color:#ffd45d;text-shadow:0 0 16px #ffca47}.victory .message{color:#ffd45d}.victory #action{background:linear-gradient(110deg,#ffe784,#75ffee)}
+</style>
+</head>
+<body>
+<main>
+  <h1>PULSO <span class="accent">NEÓN</span></h1>
+  <p class="sub">UN TOQUE. EL MOMENTO JUSTO.</p>
+  <section class="stats" aria-label="Marcadores">
+    <div class="stat"><span>PUNTOS</span><strong id="score">0</strong></div>
+    <div class="stat"><span>RÉCORD</span><strong id="best">0</strong></div>
+    <div class="stat"><span>NIVEL</span><strong id="level">1</strong></div>
+  </section>
+  <div class="playfield" id="field">
+    <canvas id="ring" width="680" height="680" aria-label="Círculo con indicador móvil y zona objetivo"></canvas>
+    <div class="center" aria-live="polite"><div class="symbol">⚡</div><div class="status" id="status">LISTO</div><div class="hint" id="hint">Poné a prueba<br>tus reflejos</div></div>
+  </div>
+  <div class="message" id="message" aria-live="polite">¿Cuántos aciertos conseguís?</div>
+  <button id="action">EMPEZAR</button>
+  <button class="sound" id="sound" type="button" aria-pressed="true">🔊 SONIDO: SÍ</button>
+  <section class="history" aria-label="Estadísticas acumuladas"><h2>📊 TUS ESTADÍSTICAS</h2><div class="history-grid"><div><strong id="games">0</strong><span>PARTIDAS</span></div><div><strong id="hits">0</strong><span>ACIERTOS</span></div><div><strong id="accuracy">0%</strong><span>PRECISIÓN</span></div><div><strong id="maxlevel">1</strong><span>NIVEL MÁXIMO</span></div></div><p class="history-note">Precisión = aciertos / pulsaciones durante las partidas.</p></section>
+  <p class="help">Dejá el dedo preparado sobre el botón PULSAR, sin tapar el círculo. Tocá cuando la aguja cruce el arco rosa. Desde el nivel 10 cambian los colores y la aguja puede invertir el giro. Desde el nivel 20, el arco también gira lentamente en sentido contrario a la aguja. Si fallás o pasan dos vueltas de la aguja sin tocar, perdés.</p>
+  <p class="footer">PULSO NEÓN · VERSIÓN FINAL 1.5.2 · FUNCIONA SIN INTERNET</p>
+</main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id),canvas=$('ring'),ctx=canvas.getContext('2d'),TAU=Math.PI*2;
+const gamesEl=$('games'),hitsEl=$('hits'),accuracyEl=$('accuracy'),maxlevelEl=$('maxlevel');
+const scoreEl=$('score'),bestEl=$('best'),levelEl=$('level'),statusEl=$('status'),hintEl=$('hint'),msgEl=$('message'),btn=$('action'),field=$('field'),soundBtn=$('sound');
+let best=0;try{best=Number(localStorage.getItem('pulso-neon-best'))||0}catch{}bestEl.textContent=best;
+let metrics={games:0,hits:0,attempts:0,maxlevel:1};try{const raw=JSON.parse(localStorage.getItem('pulso-neon-metrics')||'{}');for(const k of Object.keys(metrics))if(Number.isFinite(raw[k])&&raw[k]>=0)metrics[k]=Math.floor(raw[k])}catch{}
+function showMetrics(){gamesEl.textContent=metrics.games;hitsEl.textContent=metrics.hits;accuracyEl.textContent=metrics.attempts?Math.round(metrics.hits/metrics.attempts*100)+'%':'0%';maxlevelEl.textContent=metrics.maxlevel}
+function persistMetrics(){try{localStorage.setItem('pulso-neon-metrics',JSON.stringify(metrics))}catch{}showMetrics()}
+showMetrics();
+let soundOn=true,audioCtx=null;try{soundOn=localStorage.getItem('pulso-neon-sound')!=='off'}catch{}
+function soundUI(){soundBtn.textContent=soundOn?'🔊 SONIDO: SÍ':'🔇 SONIDO: NO';soundBtn.setAttribute('aria-pressed',String(soundOn))}
+function playTone(freq,duration,type='sine',volume=.09,delay=0){if(!soundOn)return;try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!audioCtx)audioCtx=new AC();if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});const now=audioCtx.currentTime+delay,osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,now);gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(volume,now+.012);gain.gain.exponentialRampToValueAtTime(.0001,now+duration);osc.connect(gain);gain.connect(audioCtx.destination);osc.start(now);osc.stop(now+duration+.015)}catch{}}
+function unlockAudio(){if(!soundOn)return;try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!audioCtx)audioCtx=new AC();if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{})}catch{}}
+function sfx(which){if(which==='hit'){playTone(660,.11);playTone(990,.16,'sine',.075,.085)}else if(which==='fail'){playTone(392,.16,'sawtooth',.10);playTone(294,.20,'sawtooth',.11,.13);playTone(196,.36,'triangle',.15,.30)}else if(which==='reverse'){playTone(470,.10,'triangle',.07);playTone(350,.15,'triangle',.075,.105)}else if(which==='start'){playTone(520,.11,'sine',.055)}else if(which==='win'){playTone(523,.17,'triangle',.1);playTone(659,.19,'triangle',.1,.15);playTone(784,.2,'triangle',.1,.31);playTone(1047,.48,'sine',.13,.49)}}
+soundBtn.addEventListener('click',()=>{soundOn=!soundOn;unlockAudio();try{localStorage.setItem('pulso-neon-sound',soundOn?'on':'off')}catch{}soundUI();if(soundOn)playTone(800,.10)});soundUI();
+let mode='ready',score=0,level=1,angle=-Math.PI/2,speed=1.6,target=-Math.PI/2,targetSpeed=0,halfWidth=.35,last=0,raf=0,freezeUntil=0,rotation=0,laps=0,reverseAt=Infinity,reversed=false;
+const norm=a=>((a%TAU)+TAU)%TAU;const diff=(a,b)=>Math.abs(((a-b+Math.PI*3)%TAU)-Math.PI);
+function update(){scoreEl.textContent=score;levelEl.textContent=level;bestEl.textContent=best;document.body.classList.toggle('boss',level>=10);document.body.classList.toggle('chaos',level>=20);document.body.classList.toggle('victory',mode==='won')}
+function save(){if(score>best){best=score;try{localStorage.setItem('pulso-neon-best',String(best))}catch{}update()}}
+function nextTarget(){rotation=0;laps=0;reversed=false;reverseAt=level>=10&&Math.random()<.65?TAU*(.35+Math.random()*.25):Infinity;target=Math.random()*TAU;targetSpeed=level>=20?.40:0;halfWidth=Math.max(.16,.36-level*.009);speed=Math.min(5.2,1.55+(level-1)*.16);angle=norm(target+Math.PI+(Math.random()-.5)*.55);if(level>=20)msgEl.textContent='🌀 CAOS NEÓN: ¡AMBOS SE MUEVEN!';else if(level>=10)msgEl.textContent=level===10?'🔥 NIVEL 10: MODO FUEGO':reverseAt===Infinity?'¡Atento al sentido del giro!':'⚡ ¡Cuidado! Puede cambiar de sentido'}
+function start(){document.body.classList.remove('victory');unlockAudio();sfx('start');metrics.games++;persistMetrics();score=0;level=1;freezeUntil=0;mode='playing';nextTarget();update();statusEl.textContent='¡AHORA!';hintEl.textContent='Apuntá al arco rosa';msgEl.textContent='¡Encontrá el momento!';btn.textContent='¡PULSAR!';last=0;cancelAnimationFrame(raf);raf=requestAnimationFrame(frame)}
+function attempt(){unlockAudio();if(mode!=='playing'){start();return}const now=performance.now();advance(now);if(mode!=='playing'||now<freezeUntil)return;
+metrics.attempts++;if(diff(norm(angle),norm(target))<=halfWidth){metrics.hits++;sfx('hit');score++;if(level===29){metrics.maxlevel=Math.max(metrics.maxlevel,29);persistMetrics();save();win();return}level++;metrics.maxlevel=Math.max(metrics.maxlevel,level);persistMetrics();save();statusEl.textContent='¡BIEN!';hintEl.textContent='+1 punto';msgEl.textContent='⚡ ¡PERFECTO!';field.classList.remove('pulse');void field.offsetWidth;field.classList.add('pulse');nextTarget();update();if(level===20){statusEl.textContent='🌀 CAOS';hintEl.textContent='¡Ahora se mueven ambos!'}freezeUntil=performance.now()+180}else{persistMetrics();finish(false)}}
+function win(){mode='won';cancelAnimationFrame(raf);sfx('win');statusEl.textContent='🏆 ¡LO LOGRASTE!';hintEl.textContent='¡Reflejos increíbles!';msgEl.textContent='⚡ Superaste los 29 niveles. ¡Sos una leyenda del neón!';btn.textContent='VOLVER A JUGAR';update();draw()}
+function finish(timeout){sfx('fail');mode='over';save();statusEl.textContent='FIN';hintEl.textContent=`Conseguiste ${score} ${score===1?'punto':'puntos'}`;msgEl.textContent=timeout?'⏱️ ¡Dos vueltas sin pulsar!':score>=best&&score>0?'🏆 ¡Nuevo récord!':'💥 ¡Probá otra vez!';btn.textContent='REINTENTAR'}
+function arc(radius,start,end,color,width,glow=0){ctx.beginPath();ctx.arc(340,340,radius,start,end);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineCap='round';ctx.shadowBlur=glow;ctx.shadowColor=color;ctx.stroke();ctx.shadowBlur=0}
+function draw(){const boss=level>=10;ctx.clearRect(0,0,680,680);arc(256,0,TAU,'#333853',25);arc(256,target-halfWidth,target+halfWidth,boss?'#ff9347':'#ff4db8',28,25);arc(256,angle-.085,angle+.085,boss?'#ffdb61':'#52faff',34,25);const x=340+256*Math.cos(angle),y=340+256*Math.sin(angle);ctx.beginPath();ctx.arc(x,y,14,0,TAU);ctx.fillStyle=boss?'#fff4ca':'#e9ffff';ctx.shadowColor=boss?'#ffbe3d':'#48ffff';ctx.shadowBlur=20;ctx.fill();ctx.shadowBlur=0;ctx.beginPath();ctx.arc(340,340,179,0,TAU);ctx.strokeStyle='#242845';ctx.lineWidth=2;ctx.stroke()}
+function advance(ts){if(mode!=='playing')return;if(last){const dt=Math.min((ts-last)/1000,.05);if(ts>=freezeUntil){if(!reversed&&rotation>=reverseAt){speed=-speed;reversed=true;sfx('reverse');msgEl.textContent='🔄 ¡CAMBIO DE SENTIDO!';statusEl.textContent='↺ ¡GIRO!';hintEl.textContent='¡No te distraigas!'}const step=speed*dt;angle=norm(angle+step);if(level>=20)target=norm(target-Math.sign(speed)*targetSpeed*dt);rotation+=Math.abs(step);const newLaps=Math.floor(rotation/TAU);if(newLaps!==laps){laps=newLaps;if(laps<2)msgEl.textContent='⏳ ¡Una vuelta! Te queda una más'}if(rotation>=2*TAU)finish(true)}}last=ts}
+function frame(ts){advance(ts);draw();if(mode==='playing')raf=requestAnimationFrame(frame)}
+// En pantallas táctiles se puntúa al apoyar el dedo, no al levantarlo.
+// El click sigue disponible para mouse y accesibilidad por teclado.
+let lastTouch=-Infinity;
+btn.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch'&&e.pointerType!=='pen')return;if(!e.isPrimary)return;e.preventDefault();lastTouch=performance.now();attempt()});
+btn.addEventListener('click',e=>{if(performance.now()-lastTouch<800){e.preventDefault();return}attempt()});document.addEventListener('keydown',e=>{if(e.code==='Space'||e.code==='Enter'){if(e.target===btn&&e.code==='Enter')return;e.preventDefault();attempt()}});document.addEventListener('visibilitychange',()=>{last=0});nextTarget();speed=0;angle=norm(target+Math.PI);draw();
+})();
+</script>
+</body>
+</html>
