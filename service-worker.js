@@ -1,4 +1,4 @@
-const CACHE_NAME = "pulso-neon-v1.5.2-pwa1";
+const CACHE_NAME = "pulso-neon-v1.5.2-pwa2";
 const ASSETS = [
   "./",
   "./index.html",
